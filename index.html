@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de Efemérides - Alfredo Aparicio</title>
+    
+    <!-- ICONO Y CONFIGURACIÓN PARA CELULAR (Web App) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#fdf5e6">
+    
+    <!-- LECTOR DE EXCEL -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('tu_imagen_de_fondo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: rgba(253, 245, 230, 0.95);
+            border: 2px solid #8c6b4a;
+            padding: 15px 30px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+        }
+        .header h1 { color: #1b4f72; margin-bottom: 5px; margin-top: 0; font-size: 24px; }
+        .header p { color: #555; font-size: 14px; margin-top: 0; margin-bottom: 0; }
+        
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: rgba(253, 245, 230, 0.95);
+            border: 2px solid #8c6b4a;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .filters-container {
+            display: flex; gap: 15px; margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.6); padding: 15px; 
+            border-radius: 8px; border: 1px solid #8c6b4a;
+            box-sizing: border-box;
+        }
+        .filter-box { flex: 1; }
+        .filter-box label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 5px;}
+        select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; width: 100%; cursor: pointer; box-sizing: border-box;}
+        
+        .event-list { list-style: none; padding: 0; margin: 0; }
+        .event-card {
+            background: #fff; border: 1px solid #ddd; border-left: 5px solid #3498db;
+            border-radius: 8px; padding: 15px; margin-bottom: 10px; display: flex;
+            justify-content: space-between; align-items: center; transition: transform 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        .event-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .event-card.defuncion { border-left-color: #9b59b6; }
+        .event-card.amoroso { border-left-color: #e74c3c; }
+        .event-card.especial { border-left-color: #f1c40f; background-color: #fffdee; }
+        
+        /* DISEÑO DE LA FOTO */
+        .event-card-content { display: flex; align-items: center; flex: 1; }
+        .contact-photo {
+            width: 55px; height: 55px; border-radius: 50%; object-fit: cover;
+            margin-right: 15px; border: 2px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .default-photo {
+            background-color: #e8f8f5; display: flex; justify-content: center;
+            align-items: center; font-size: 25px; border: 2px solid #1abc9c; color: #1abc9c;
+        }
+
+        .event-info h3 { margin: 0 0 5px 0; font-size: 16px; color: #2c3e50; }
+        .event-info p { margin: 0; font-size: 13px; color: #7f8c8d; }
+        
+        .btn-redactar {
+            background-color: #2e86c1; color: white; border: none; padding: 10px 15px;
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: background 0.3s;
+            white-space: nowrap;
+        }
+        .btn-redactar:hover { background-color: #1b4f72; }
+
+        /* MODAL REDACTOR */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);
+            align-items: center; justify-content: center; padding: 15px; box-sizing: border-box;
+        }
+        .modal-content {
+            background-color: #fdf5e6; padding: 25px; border-radius: 12px;
+            width: 100%; max-width: 500px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 3px solid #8c6b4a; 
+            box-sizing: border-box;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #8c6b4a; padding-bottom: 10px; margin-bottom: 15px;
+        }
+        .modal-header h2 { margin: 0; font-size: 18px; color: #2c3e50; }
+        .close-btn { font-size: 24px; cursor: pointer; color: #8c6b4a; font-weight: bold; }
+        .close-btn:hover { color: red; }
+        
+        textarea {
+            width: 100%; height: 140px; padding: 15px; background-color: #2c3e50;
+            color: #fdf5e6; border: 2px solid #1a252f; border-radius: 8px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-size: 15px; line-height: 1.5; resize: vertical; box-sizing: border-box; 
+            margin-bottom: 15px; box-shadow: inset 0 3px 6px rgba(0,0,0,0.4);
+        }
+        textarea:focus { outline: none; border-color: #3498db; box-shadow: 0 0 8px rgba(52, 152, 219, 0.6); }
+
+        .btn-whatsapp {
+            background-color: #25D366; color: white; border: none; width: 100%;
+            padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+        .btn-whatsapp:hover { background-color: #128C7E; }
+        
+        /* === AJUSTES RESPONSIVOS (PARA CELULARES) === */
+        @media screen and (max-width: 600px) {
+            body { padding: 10px; }
+            .header { width: 100%; padding: 15px; margin-left: 0; transform: none; display: block; }
+            .container { padding: 15px; }
+            .filters-container { flex-direction: column; gap: 10px; padding: 10px; }
+            
+            .event-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .event-card-content { width: 100%; }
+            .contact-photo { width: 50px; height: 50px; } 
+            
+            .btn-redactar { width: 100%; text-align: center; font-size: 14px; padding: 12px; }
+            .modal-content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Mi Asistente Personal</h1>
+        <p>Gestión de mensajes y efemérides</p>
+    </div>
+
+    <div class="container">
+        <div class="filters-container">
+            <div class="filter-box">
+                <label for="monthFilter">📅 Cumpleaños y Aniversarios:</label>
+                <select id="monthFilter" onchange="renderEvents()">
+                    <option value="0">Enero</option><option value="1">Febrero</option>
+                    <option value="2">Marzo</option><option value="3">Abril</option>
+                    <option value="4">Mayo</option><option value="5">Junio</option>
+                    <option value="6">Julio</option><option value="7">Agosto</option>
+                    <option value="8">Septiembre</option><option value="9">Octubre</option>
+                    <option value="10">Noviembre</option><option value="11">Diciembre</option>
+                    <option value="todos">Mostrar Todo el Año</option>
+                </select>
+            </div>
+            
+            <div class="filter-box">
+                <label for="occasionFilter">🎉 Celebraciones Especiales:</label>
+                <select id="occasionFilter" onchange="renderEvents()" style="border-color: #f39c12; background-color: #fef9e7;">
+                    <option value="ninguna">-- Seleccionar Día --</option>
+                    <option value="madre">Día de la Madre</option>
+                    <option value="padre">Día del Padre</option>
+                    <option value="medico">Día del Médico</option>
+                    <option value="ingeniero">Día del Ingeniero</option>
+                </select>
+            </div>
+        </div>
+
+        <ul id="eventsList" class="event-list">
+            <li style="text-align:center; padding:20px; color:#777;">Cargando tus contactos desde Google Sheets...</li>
+        </ul>
+    </div>
+
+    <div id="msgModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Revisar Mensaje</h2>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <p id="modalHint" style="font-size: 13px; color: #5a4634; margin-top: 0; font-weight: 500;">He redactado este mensaje basándome en tu relación. Puedes editarlo antes de enviarlo.</p>
+            <textarea id="messageBox"></textarea>
+            <button id="waButton" class="btn-whatsapp" onclick="sendWhatsApp()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                </svg>
+                Enviar por WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // ENLACE DE GOOGLE SHEETS INTEGRADO
+        // =========================================================================
+        const urlDelExcel = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTY3pSQRl_Sh7xG--woGXQvMAOSfoMpqIzxA8qn95TDNnqk9yOAflX-DSNQrkuqWkbEiyK1sEN_qdUF/pub?output=csv"; 
+        
+        let miAgenda = []; 
+        let currentContact = null;
+
+        window.onload = function() {
+            const currentMonth = new Date().getMonth();
+            document.getElementById('monthFilter').value = currentMonth;
+            
+            if(urlDelExcel === "PEGAR_AQUI_EL_ENLACE_QUE_COPIASTE") {
+                document.getElementById('eventsList').innerHTML = '<li style="text-align:center; padding:20px; color:red; font-weight:bold;">¡Falta configurar el enlace de Google Sheets en el código!</li>';
+                return;
+            }
+
+            Papa.parse(urlDelExcel, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    miAgenda = results.data.filter(contacto => contacto.Nombre);
+                    renderEvents();
+                },
+                error: function(error) {
+                    document.getElementById('eventsList').innerHTML = '<li style="text-align:center; padding:20px; color:red;">Hubo un error leyendo tu Excel. Revisa que el enlace sea correcto.</li>';
+                }
+            });
+        };
+
+        function renderEvents() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const selectedOccasion = document.getElementById('occasionFilter').value;
+            const eventsList = document.getElementById('eventsList');
+            eventsList.innerHTML = '';
+
+            let filteredEvents = [];
+
+            if (selectedOccasion !== "ninguna") {
+                filteredEvents = miAgenda.filter(contacto => {
+                    const categoriaStr = (contacto.Categoria || "").toLowerCase();
+                    return categoriaStr.includes(selectedOccasion);
+                });
+                filteredEvents.sort((a, b) => a.Nombre.localeCompare(b.Nombre));
+            } 
+            else {
+                filteredEvents = miAgenda.filter(contacto => {
+                    if (!contacto.Fecha) return false;
+                    if (selectedMonth === "todos") return true;
+                    const parts = contacto.Fecha.split('/');
+                    return (parseInt(parts[1]) - 1) == selectedMonth;
+                });
+                filteredEvents.sort((a, b) => {
+                    return parseInt(a.Fecha.split('/')[0]) - parseInt(b.Fecha.split('/')[0]);
+                });
+            }
+
+            if (filteredEvents.length === 0) {
+                eventsList.innerHTML = '<li style="text-align:center; padding:20px; color:#777;">No hay contactos para este filtro.</li>';
+                return;
+            }
+
+            const currentYear = new Date().getFullYear();
+            const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+            filteredEvents.forEach((ev, index) => {
+                let desc, icon, cardClass;
+                let detailText = "";
+                
+                // --- LÓGICA DE LA FOTO ---
+                let fotoUrl = (ev.Foto || ev.foto || "").trim();
+                let fotoHtml = "";
+                if (fotoUrl !== "") {
+                    fotoHtml = `<img src="${fotoUrl}" alt="Foto de ${ev.Nombre}" class="contact-photo">`;
+                } else {
+                    fotoHtml = `<div class="contact-photo default-photo">👤</div>`;
+                }
+
+                if (selectedOccasion !== "ninguna") {
+                    icon = "💐"; cardClass = "especial";
+                    if(selectedOccasion === "madre") desc = "Día de la Madre";
+                    if(selectedOccasion === "padre") { desc = "Día del Padre"; icon = "👔"; }
+                    if(selectedOccasion === "medico") { desc = "Día del Médico"; icon = "🩺"; }
+                    if(selectedOccasion === "ingeniero") { desc = "Día del Ingeniero"; icon = "📐"; }
+                    detailText = `<p><strong>${desc}</strong></p>`;
+                } 
+                else {
+                    const parts = ev.Fecha.split('/');
+                    const day = parts[0];
+                    const monthName = meses[parseInt(parts[1]) - 1];
+                    const years = currentYear - parseInt(parts[2]);
+
+                    if (ev.Tipo.toLowerCase() === "cumpleaños" || ev.Tipo.toLowerCase() === "cumpleanos") {
+                        desc = `Cumple ${years} años`; icon = "🎂"; cardClass = ev.Tono.toLowerCase() === 'amoroso' ? 'amoroso' : '';
+                    } else {
+                        desc = `${years} años de su partida`; icon = "🕊️"; cardClass = 'defuncion';
+                    }
+                    detailText = `<p><strong>${day} de ${monthName}</strong> - ${desc}</p>`;
+                }
+
+                const li = document.createElement('li');
+                li.className = `event-card ${cardClass}`;
+                li.innerHTML = `
+                    <div class="event-card-content">
+                        ${fotoHtml}
+                        <div class="event-info">
+                            <h3>${icon} ${ev.Nombre}</h3>
+                            ${detailText}
+                            <p style="font-size:11px; margin-top:3px;">Relación: ${ev.Relacion} | Tono: ${ev.Tono}</p>
+                        </div>
+                    </div>
+                    <button class="btn-redactar" onclick="abrirRedactor(${index})">Preparar Mensaje</button>
+                `;
+                eventsList.appendChild(li);
+            });
+
+            window.filteredEvents = filteredEvents;
+        }
+
+        function generarMensaje(contacto) {
+            const selectedOccasion = document.getElementById('occasionFilter').value;
+            let tono = (contacto.Tono || "normal").toLowerCase();
+            let nombreCorto = contacto.Nombre.split(' ')[0];
+
+            if (selectedOccasion !== "ninguna") {
+                if (selectedOccasion === "madre") {
+                    if (tono === "amoroso") return `¡Feliz Día de la Madre, mi amor! Eres el pilar de nuestra familia y una madre maravillosa. Te amo con todo mi corazón. ❤️💐`;
+                    if (tono === "cariñoso") return `¡Feliz Día de la Madre! Que pases un día hermoso rodeada de mucho amor. Eres una mamá excelente. ¡Un abrazo gigante! 💐💖`;
+                    return `¡Feliz Día de la Madre, ${nombreCorto}! Espero que hoy te consientan mucho y pases un día muy especial. Un abrazo. 🌸`;
+                }
+                if (selectedOccasion === "padre") {
+                    if (tono === "amoroso") return `¡Feliz Día del Padre! Eres un papá increíble, gracias por todo lo que haces por nuestra familia. ¡Te amo muchísimo! ❤️👔`;
+                    if (tono === "cariñoso") return `¡Feliz Día del Padre! Te mando un gran abrazo en tu día, que lo disfrutes muchísimo en familia. 👔🎉`;
+                    return `¡Feliz Día del Padre, ${nombreCorto}! Espero que pases un excelente día. Un fuerte abrazo. 🍻`;
+                }
+                if (selectedOccasion === "medico") return `¡Feliz Día del Médico, ${nombreCorto}! Gracias por tu dedicación, vocación y por cuidar siempre la salud de todos. ¡Un gran abrazo! 🩺👨‍⚕️`;
+                if (selectedOccasion === "ingeniero") return `¡Feliz Día del Ingeniero, ${nombreCorto}! Felicidades en tu día, que sigan los éxitos y los grandes proyectos. 📐👷‍♂️`;
+            }
+
+            const currentYear = new Date().getFullYear();
+            const years = currentYear - parseInt(contacto.Fecha.split('/')[2]);
+            let tipo = (contacto.Tipo || "").toLowerCase();
+
+            if (tipo === "cumpleaños" || tipo === "cumpleanos") {
+                if (tono === "amoroso") return `¡Mi amor! Hoy celebramos un año más de tu vida. Felices ${years} años. Eres lo mejor que me ha pasado. ¡Te amo muchísimo! ❤️`;
+                if (tono === "cariñoso") return `¡Hola! Muy feliz cumpleaños. Que alegría inmensa poder celebrar tus ${years} años. Te mando un abrazo gigante. 🎂🥳`;
+                return `¡Hola ${nombreCorto}! Espero que estés muy bien. Te escribo para desearte un muy feliz cumpleaños. ¡Un abrazo! 🎂`;
+            } 
+            else if (tipo === "defuncion" || tipo === "defunción") {
+                if (tono === "respetuoso" || tono === "cariñoso") return `Hoy elevamos una oración y recordamos con mucho amor a ${contacto.Nombre}, al cumplirse ${years} años de su descanso. Un abrazo a la familia. 🙏🕊️`;
+                return `Hoy recordamos a ${contacto.Nombre}, a ${years} años de su partida. Que en paz descanse. 🙏`;
+            }
+
+            return `¡Hola ${nombreCorto}! Te envío un saludo.`;
+        }
+
+        function abrirRedactor(index) {
+            currentContact = window.filteredEvents[index];
+            if (!currentContact) return;
+
+            let tel = (currentContact.Telefono || "").trim().toLowerCase();
+            if (tel === "grupo") {
+                currentContact.esGrupo = true;
+            } else {
+                currentContact.esGrupo = false;
+                currentContact.telefonoLimpio = currentContact.Telefono.replace(/\D/g, '');
+            }
+
+            const sugerencia = generarMensaje(currentContact);
+            document.getElementById('messageBox').value = sugerencia;
+            
+            const selectedOccasion = document.getElementById('occasionFilter').value;
+            if (selectedOccasion !== "ninguna") {
+                document.getElementById('modalHint').innerText = "Este mensaje fue redactado para el día especial. Edítalo como gustes.";
+            } else {
+                document.getElementById('modalHint').innerText = "He redactado este mensaje basándome en tu relación. Puedes editarlo antes de enviarlo.";
+            }
+
+            document.getElementById('msgModal').style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById('msgModal').style.display = "none";
+        }
+
+        function sendWhatsApp() {
+            if (!currentContact) return;
+
+            const finalMessage = document.getElementById('messageBox').value;
+            const encodedMessage = encodeURIComponent(finalMessage);
+            let waUrl = "";
+
+            if (currentContact.esGrupo) {
+                waUrl = `https://wa.me/?text=${encodedMessage}`;
+            } else {
+                if (!currentContact.telefonoLimpio) {
+                    alert("Por favor, pon un número o escribe 'Grupo' en la columna Telefono de tu Excel.");
+                    return;
+                }
+                waUrl = `https://wa.me/${currentContact.telefonoLimpio}?text=${encodedMessage}`;
+            }
+            
+            window.open(waUrl, '_blank');
+            closeModal();
+        }
+    </script>
+</body>
+</html>
