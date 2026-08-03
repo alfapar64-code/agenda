@@ -70,23 +70,55 @@
         .btn-whatsapp { background-color: #25D366; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background-color 0.3s; box-sizing: border-box; }
         .btn-whatsapp:hover { background-color: #128C7E; }
         
-        /* DISEÑO DE LA POSTAL (Para html2canvas) */
+        /* === NUEVO DISEÑO DE LA POSTAL (PRECIOSISTA) === */
         .postal-canvas {
-            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
-            padding: 30px 20px;
-            border: 2px solid #b2dfdb;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #fefdfa 0%, #f4eee1 100%);
+            padding: 15px;
             text-align: center;
             position: relative;
             margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .postal-title { font-family: 'Georgia', serif; color: #8c6b4a; font-size: 18px; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; font-weight: bold; }
-        .postal-img-container { margin: 0 auto 15px; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); background: #eee; }
-        .postal-img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .postal-name { font-family: 'Georgia', serif; color: #8c6b4a; font-size: 24px; margin: 0 0 15px 0; font-weight: bold; }
-        .postal-text { font-size: 15px; color: #444; line-height: 1.5; margin-bottom: 25px; font-style: italic; white-space: pre-wrap; padding: 0 10px; }
-        .postal-footer { font-family: 'Georgia', serif; font-weight: bold; font-size: 15px; color: #333; border-top: 1px solid #ccc; padding-top: 15px; margin-top: 10px; }
+        
+        /* Marco principal con borde doble */
+        .postal-inner-frame {
+            border: 1px solid #c8a97e;
+            padding: 25px 15px;
+            position: relative;
+        }
+        .postal-inner-frame::before {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px; right: 3px; bottom: 3px;
+            border: 1px solid rgba(200, 169, 126, 0.5);
+        }
+        
+        /* Detalles de las esquinas preciosistas */
+        .corner-ornament {
+            position: absolute;
+            width: 15px; height: 15px;
+            border: 2px solid #c8a97e;
+            background: #fefdfa;
+            z-index: 1;
+        }
+        .co-tl { top: -5px; left: -5px; border-right: none; border-bottom: none; }
+        .co-tr { top: -5px; right: -5px; border-left: none; border-bottom: none; }
+        .co-bl { bottom: -5px; left: -5px; border-right: none; border-top: none; }
+        .co-br { bottom: -5px; right: -5px; border-left: none; border-top: none; }
+
+        /* Tipografía y elementos internos */
+        .postal-title { font-family: 'Georgia', serif; color: #8c6b4a; font-size: 16px; letter-spacing: 1.5px; margin-bottom: 15px; text-transform: uppercase; font-weight: bold; position: relative; z-index: 2; }
+        
+        .postal-img-container { margin: 0 auto 15px; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid #c8a97e; padding: 2px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: transparent; position: relative; z-index: 2; }
+        .postal-img-container img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        
+        .postal-name { font-family: 'Georgia', serif; color: #8c6b4a; font-size: 22px; margin: 0 0 15px 0; font-weight: bold; position: relative; z-index: 2; }
+        .postal-name::after { content: ''; display: block; width: 50px; height: 1px; background: #c8a97e; margin: 8px auto 0; }
+        
+        .postal-text { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 20px; font-style: italic; white-space: pre-wrap; padding: 0 10px; font-family: 'Georgia', serif; position: relative; z-index: 2; }
+        
+        .postal-flourish { font-size: 18px; color: #c8a97e; margin-bottom: 5px; position: relative; z-index: 2; line-height: 1;}
+        .postal-footer { font-family: 'Georgia', serif; font-weight: bold; font-size: 16px; color: #8c6b4a; text-transform: uppercase; letter-spacing: 1px; position: relative; z-index: 2; }
 
         @media screen and (max-width: 600px) {
             body { padding: 10px; }
@@ -169,13 +201,22 @@
             
             <!-- Vista Previa de la Postal (Lo que se convertirá en imagen) -->
             <div id="captureArea" class="postal-canvas">
-                <div class="postal-title">En Memoria Eterna De</div>
-                <div class="postal-img-container">
-                    <img id="postalImg" src="" alt="Foto" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+                <div class="postal-inner-frame">
+                    <!-- Decoración de Esquinas -->
+                    <div class="corner-ornament co-tl"></div>
+                    <div class="corner-ornament co-tr"></div>
+                    <div class="corner-ornament co-bl"></div>
+                    <div class="corner-ornament co-br"></div>
+                    
+                    <div class="postal-title">En Memoria Eterna De</div>
+                    <div class="postal-img-container">
+                        <img id="postalImg" src="" alt="Foto" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+                    </div>
+                    <div id="postalNameTitle" class="postal-name">Nombre</div>
+                    <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
+                    <div class="postal-flourish">❦</div>
+                    <div class="postal-footer">Te recordamos con cariño</div>
                 </div>
-                <div id="postalNameTitle" class="postal-name">Nombre</div>
-                <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
-                <div class="postal-footer">Honor a quien honor merece.</div>
             </div>
 
             <p style="font-size: 13px; color: #5a4634; margin: 10px 0 5px; font-weight: bold;">Edita el texto de la postal:</p>
@@ -279,7 +320,6 @@
                     detailText = `<p><strong>${day} de ${monthName}</strong> - ${desc}</p>`;
                 }
 
-                // Generar los botones dinámicamente
                 let botonesHtml = `<button class="btn-redactar" onclick="abrirRedactor(${index})">Preparar Mensaje</button>`;
                 if (isDefuncion && selectedOccasion === "ninguna") {
                     botonesHtml = `
@@ -313,7 +353,6 @@
             const currentYear = new Date().getFullYear();
             const years = currentYear - parseInt(contacto.Fecha.split('/')[2]);
             let tipo = (contacto.Tipo || "").toLowerCase();
-            let tono = (contacto.Tono || "normal").toLowerCase();
 
             if (tipo === "defuncion" || tipo === "defunción") {
                 return `En este día, con profundo amor y respeto, nos unimos para honrar el aniversario de la partida de ${contacto.Nombre}. Hoy elevamos una oración y recordamos con cariño los hermosos momentos compartidos al cumplirse ${years} años de su descanso. Su recuerdo sigue siendo una luz en nuestras vidas. Un abrazo a la familia. 🙏🕊️`;
