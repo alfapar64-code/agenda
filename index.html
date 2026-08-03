@@ -414,7 +414,8 @@
             if (!currentContact) return;
             
             const captureArea = document.getElementById('captureArea');
-            const userText = document.getElementById('postalTextBox').value;
+            // Ya no usaremos este texto como subtítulo (caption) para no repetirlo
+            // const userText = document.getElementById('postalTextBox').value; 
             
             try {
                 const canvas = await html2canvas(captureArea, { 
@@ -429,7 +430,7 @@
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
-                                text: userText, 
+                                // Solo enviamos el archivo, sin el parámetro "text"
                                 files: [file]
                             });
                             closeModal('postalModal');
