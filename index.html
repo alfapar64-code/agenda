@@ -70,7 +70,7 @@
         .btn-whatsapp { background-color: #25D366; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background-color 0.3s; box-sizing: border-box; }
         .btn-whatsapp:hover { background-color: #128C7E; }
         
-        /* === NUEVO DISEÑO DE LA POSTAL (PRECIOSISTA) === */
+        /* === DISEÑO DE LA POSTAL (PRECIOSISTA) === */
         .postal-canvas {
             background: linear-gradient(135deg, #fefdfa 0%, #f4eee1 100%);
             padding: 15px;
@@ -195,7 +195,7 @@
     <div id="postalModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Generar Postal Conmemorativa</h2>
+                <h2 id="modalPostalTitle">Generar Postal Conmemorativa</h2>
                 <span class="close-btn" onclick="closeModal('postalModal')">&times;</span>
             </div>
             
@@ -208,14 +208,14 @@
                     <div class="corner-ornament co-bl"></div>
                     <div class="corner-ornament co-br"></div>
                     
-                    <div class="postal-title">En Memoria Eterna De</div>
+                    <div id="postalHeaderTitle" class="postal-title">En Memoria Eterna De</div>
                     <div class="postal-img-container">
                         <img id="postalImg" src="" alt="Foto" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
                     </div>
                     <div id="postalNameTitle" class="postal-name">Nombre</div>
                     <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
                     <div class="postal-flourish">❦</div>
-                    <div class="postal-footer">Te recordamos con cariño</div>
+                    <div id="postalFooterText" class="postal-footer">Te recordamos con cariño</div>
                 </div>
             </div>
 
@@ -315,17 +315,27 @@
                     if (isDefuncion) {
                         desc = `${years} años de su partida`; icon = "🕊️"; cardClass = 'defuncion';
                     } else {
-                        desc = `Cumple ${years} años`; icon = "🎂"; cardClass = ev.Tono.toLowerCase() === 'amoroso' ? 'amoroso' : '';
+                        // Verificamos si es una persona fallecida cuyo registro en el Excel es de tipo 'cumpleaños'
+                        // (Nota: en tu base de datos tienes tanto la fila de cumpleaños como la de defunción para algunos familiares)
+                        let esFallecidoCumple = miAgenda.some(c => c.Nombre === ev.Nombre && (c.Tipo.toLowerCase() === "defuncion" || c.Tipo.toLowerCase() === "defunción"));
+                        if (esFallecidoCumple) {
+                            desc = `Estaría cumpliendo ${years} años`; icon = "🕊️🎂"; cardClass = 'defuncion';
+                        } else {
+                            desc = `Cumple ${years} años`; icon = "🎂"; cardClass = ev.Tono.toLowerCase() === 'amoroso' ? 'amoroso' : '';
+                        }
                     }
                     detailText = `<p><strong>${day} de ${monthName}</strong> - ${desc}</p>`;
                 }
 
                 let botonesHtml = `<button class="btn-redactar" onclick="abrirRedactor(${index})">Preparar Mensaje</button>`;
-                if (isDefuncion && selectedOccasion === "ninguna") {
-                    botonesHtml = `
-                        <button class="btn-redactar" onclick="abrirRedactor(${index})">Mensaje Normal</button>
-                        <button class="btn-redactar btn-postal" onclick="abrirPostal(${index})">Preparar Postal</button>
-                    `;
+                if (selectedOccasion === "ninguna") {
+                    let esFallecidoCumple = miAgenda.some(c => c.Nombre === ev.Nombre && (c.Tipo.toLowerCase() === "defuncion" || c.Tipo.toLowerCase() === "defunción"));
+                    if (isDefuncion || esFallecidoCumple) {
+                        botonesHtml = `
+                            <button class="btn-redactar" onclick="abrirRedactor(${index})">Mensaje Normal</button>
+                            <button class="btn-redactar btn-postal" onclick="abrirPostal(${index})">Preparar Postal</button>
+                        `;
+                    }
                 }
 
                 const li = document.createElement('li');
@@ -353,10 +363,18 @@
             const currentYear = new Date().getFullYear();
             const years = currentYear - parseInt(contacto.Fecha.split('/')[2]);
             let tipo = (contacto.Tipo || "").toLowerCase();
+            let esFallecido = (tipo === "defuncion" || tipo === "defunción" || miAgenda.some(c => c.Nombre === contacto.Nombre && (c.Tipo.toLowerCase() === "defuncion" || c.Tipo.toLowerCase() === "defunción")));
 
-            if (tipo === "defuncion" || tipo === "defunción") {
-                return `En este día, con profundo amor y respeto, nos unimos para honrar el aniversario de la partida de ${contacto.Nombre}. Hoy elevamos una oración y recordamos con cariño los hermosos momentos compartidos al cumplirse ${years} años de su descanso. Su recuerdo sigue siendo una luz en nuestras vidas. Un abrazo a la familia. 🙏🕊️`;
+            if (esFallecido) {
+                if (tipo === "cumpleaños" || tipo === "cumpleanos") {
+                    // Mensaje especial para el CUMPLEAÑOS de un familiar fallecido
+                    return `En este día especial, recordamos que ${contacto.Nombre} estaría cumpliendo ${years} años de vida. Aunque ya no nos acompaña físicamente, nos llena de alegría y paz saber que se encuentra gozando en el cielo, en la paz del Señor, reunido junto a nuestros otros seres queridos que también han partido. ¡Celebramos su vida eterna en nuestros corazones! ✨🕊️`;
+                } else {
+                    // Mensaje para el ANIVERSARIO DE DEFUNCIÓN
+                    return `En este día, con profundo amor y respeto, nos unimos para honrar el aniversario de la partida de ${contacto.Nombre}. Hoy elevamos una oración y recordamos con cariño los hermosos momentos compartidos al cumplirse ${years} años de su descanso. Su recuerdo sigue siendo una luz en nuestras vidas. Un abrazo a la familia. 🙏🕊️`;
+                }
             }
+
             let nombreCorto = contacto.Nombre.split(' ')[0];
             return `¡Hola ${nombreCorto}! Espero que estés muy bien. Te escribo para desearte un muy feliz cumpleaños. ¡Un abrazo! 🎂`;
         }
@@ -378,6 +396,20 @@
             document.getElementById('postalImg').src = fotoUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
             document.getElementById('postalNameTitle').innerText = currentContact.Nombre;
             
+            let tipo = (currentContact.Tipo || "").toLowerCase();
+            let esCumple = (tipo === "cumpleaños" || tipo === "cumpleanos");
+
+            // Personalizar títulos de la postal según sea cumpleaños en el cielo o aniversario de partida
+            if (esCumple) {
+                document.getElementById('modalPostalTitle').innerText = "Postal de Cumpleaños en el Cielo";
+                document.getElementById('postalHeaderTitle').innerText = "Celebrando su Vida Eterna";
+                document.getElementById('postalFooterText').innerText = "En la paz del Señor";
+            } else {
+                document.getElementById('modalPostalTitle').innerText = "Postal Conmemorativa";
+                document.getElementById('postalHeaderTitle').innerText = "En Memoria Eterna De";
+                document.getElementById('postalFooterText').innerText = "Te recordamos con cariño";
+            }
+
             let sugerencia = generarMensaje(currentContact);
             document.getElementById('postalTextBox').value = sugerencia;
             updatePostalLive();
@@ -414,8 +446,6 @@
             if (!currentContact) return;
             
             const captureArea = document.getElementById('captureArea');
-            // Ya no usaremos este texto como subtítulo (caption) para no repetirlo
-            // const userText = document.getElementById('postalTextBox').value; 
             
             try {
                 const canvas = await html2canvas(captureArea, { 
@@ -425,12 +455,11 @@
                 });
                 
                 canvas.toBlob(async function(blob) {
-                    const file = new File([blob], 'postal_conmemorativa.png', { type: 'image/png' });
+                    const file = new File([blob], 'postal_efemeride.png', { type: 'image/png' });
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
-                                // Solo enviamos el archivo, sin el parámetro "text"
                                 files: [file]
                             });
                             closeModal('postalModal');
@@ -439,7 +468,7 @@
                         }
                     } else {
                         const link = document.createElement('a');
-                        link.download = `Recordatorio_${currentContact.Nombre.replace(/\s/g, '_')}.png`;
+                        link.download = `Efemereide_${currentContact.Nombre.replace(/\s/g, '_')}.png`;
                         link.href = canvas.toDataURL();
                         link.click();
                         alert("¡Postal descargada! Ahora puedes enviarla manualmente por WhatsApp a tu grupo.");
