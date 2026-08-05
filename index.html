@@ -144,30 +144,34 @@
         .btn-whatsapp:disabled { background-color: #7f8c8d; cursor: not-allowed; }
 
         #postalPreviewWrapper {
-            display: flex; justify-content: center; margin-bottom: 15px;
+            display: flex; justify-content: center; margin-bottom: 15px; width: 100%;
         }
         
         #postalPreview {
-            width: 340px; 
-            height: 605px; 
+            width: 100%; 
+            max-width: 420px; 
+            aspect-ratio: 340 / 605;
             background-image: url('fondo_postal.png'); /* EL FONDO QUE SUBISTE */
-            background-size: cover;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
             background-position: center;
             display: flex; flex-direction: column; align-items: center;
             padding: 0; text-align: center;
             font-family: 'Playfair Display', serif;
             box-sizing: border-box; position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            container-type: inline-size; /* Clave para que la fuente escale perfecta */
         }
         
-        /* Posicionamiento exacto de la foto del difunto entre Jesús y Dios */
+        /* Posicionamiento exacto basado en porcentajes para adaptarse a la pantalla */
         .postal-img-container {
             position: absolute;
-            top: 75px; 
+            top: 13.5%; 
             left: 50%;
             transform: translateX(-50%);
-            width: 82px;
-            height: 82px;
+            width: 25%;
+            aspect-ratio: 1 / 1;
+            height: auto;
             border-radius: 50%;
             border: 2.5px solid #d4af37;
             overflow: hidden;
@@ -179,39 +183,42 @@
 
         .postal-content-box {
             position: absolute;
-            top: 185px; /* Subido justo debajo del borde superior del marco dorado */
-            left: 45px; /* Separado de los bordes laterales dorados */
-            right: 45px;
-            bottom: 105px; /* Arriba del texto "Jamás te olvidaremos" que ya tiene la imagen */
+            top: 36%; /* Bajado para no superponer la foto ni salirse del marco dorado */
+            left: 11%; 
+            right: 11%;
+            bottom: 13%; /* Más espacio hacia abajo para evitar textos cortados */
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 5px 0;
+            padding: 2% 0;
             box-sizing: border-box;
             z-index: 3;
-            overflow: hidden; /* Evita cualquier scroll */
         }
 
         .postal-title-top {
-            font-size: 11px; color: #5a4634; text-transform: uppercase;
-            letter-spacing: 1.5px; margin-top: 0; margin-bottom: 4px; font-weight: bold;
+            font-size: 11px; font-size: 3.5cqi; color: #5a4634; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-top: 0; margin-bottom: 2%; font-weight: bold;
         }
         .postal-name {
-            font-size: 18px; color: #2c221e; font-weight: 700; text-transform: uppercase;
-            margin-bottom: 8px; border-top: 1px solid rgba(212, 175, 55, 0.6); 
+            font-size: 18px; font-size: 5.5cqi; color: #2c221e; font-weight: 700; text-transform: uppercase;
+            margin-bottom: 4%; border-top: 1px solid rgba(212, 175, 55, 0.6); 
             border-bottom: 1px solid rgba(212, 175, 55, 0.6);
-            padding: 4px 0; width: 100%; text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            padding: 2% 0; width: 100%; text-shadow: 0 1px 2px rgba(255,255,255,0.8);
         }
         .postal-text {
-            font-size: 13.5px; color: #3a2e2b; line-height: 1.35;
+            font-size: 13px; font-size: 3.8cqi; color: #3a2e2b; line-height: 1.35;
             margin-bottom: 0; font-style: italic;
             padding: 0; width: 100%; text-align: center;
-            /* Trunca sutilmente el texto si es muy largo, para jamás desbordar */
-            display: -webkit-box;
-            -webkit-line-clamp: 8;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+        }
+        
+        /* Ajuste de modal para maximizar espacio */
+        .postal-modal-layout {
+            padding: 35px 10px 15px 10px !important; 
+            max-width: 440px !important;
+        }
+        .postal-close-btn {
+            position: absolute; top: 8px; right: 15px; z-index: 10;
         }
     
         @media (max-width: 600px) {
@@ -285,11 +292,8 @@
 
 <!-- MODAL PARA GENERAR POSTAL CONMEMORATIVA -->
 <div id="postalModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalPostalTitle">Generar Postal</h2>
-            <span class="close-btn" onclick="closeModal('postalModal')">&times;</span>
-        </div>
+    <div class="modal-content postal-modal-layout">
+        <span class="close-btn postal-close-btn" onclick="closeModal('postalModal')">&times;</span>
         
         <div id="postalPreviewWrapper">
             <!-- CONTENEDOR QUE SERÁ CONVERTIDO A IMAGEN -->
@@ -301,12 +305,11 @@
                     <div class="postal-title-top" id="pHeaderTitle">En Memoria Eterna De</div>
                     <div class="postal-name" id="pName">NOMBRE</div>
                     <div class="postal-text" id="pText">Texto...</div>
-                    <!-- Eliminado el div footer, el fondo_postal.png ya trae "Jamás te olvidaremos" abajo -->
                 </div>
             </div>
         </div>
         
-        <label style="font-size: 13px; font-weight: bold; color: #5a4634;">Edita el mensaje de la postal aquí:</label>
+        <label style="font-size: 13px; font-weight: bold; color: #5a4634; margin-top: 15px; display: block; margin-bottom: 5px;">Edita el mensaje de la postal aquí:</label>
         <textarea id="postalTextBox" oninput="updatePostalText()"></textarea>
         
         <button id="btnSharePostal" class="btn-whatsapp" onclick="sharePostal()">
@@ -499,10 +502,8 @@
 
         // Cambiar títulos según sea cumpleaños póstumo o aniversario de defunción
         if (esCumple) {
-            document.getElementById('modalPostalTitle').innerText = "Postal Cumpleaños (Cielo)";
             document.getElementById('pHeaderTitle').innerText = "Celebrando Su Vida Eterna";
         } else {
-            document.getElementById('modalPostalTitle').innerText = "Postal Conmemorativa";
             document.getElementById('pHeaderTitle').innerText = "En Memoria Eterna De";
         }
         
