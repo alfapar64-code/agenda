@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -216,12 +216,38 @@
             padding: 0 5px;
         }
         .postal-footer {
-            font-size: 12px; font-weight: bold; color: #5a4634;
-            margin-top: auto; letter-spacing: 0.5px;
-        }
-        
-        /* === AJUSTES RESPONSIVOS (PARA CELULARES) === -->
-                    <option value="8">Septiembre</option><option value="9">Octubre</option>
+        font-size: 12px; font-weight: bold; color: #5a4634;
+        margin-top: auto; letter-spacing: 0.5px;
+    }
+    
+    /* === AJUSTES RESPONSIVOS (PARA CELULARES) === */
+    @media (max-width: 600px) {
+        .header { width: 90%; }
+        .filters-container { flex-direction: column; }
+        .event-card { flex-direction: column; text-align: center; }
+        .event-card-content { flex-direction: column; margin-bottom: 10px; }
+        .contact-photo { margin-right: 0; margin-bottom: 10px; }
+        .action-buttons { width: 100%; justify-content: center; }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Asistente de Efemérides</h1>
+    <p>Recordatorios y Postales Especiales</p>
+</div>
+
+<div class="container">
+    <div class="filters-container">
+        <div class="filter-box">
+            <label for="monthFilter">📅 Mes de la fecha:</label>
+            <select id="monthFilter" onchange="renderEvents()">
+                <option value="0">Enero</option><option value="1">Febrero</option>
+                <option value="2">Marzo</option><option value="3">Abril</option>
+                <option value="4">Mayo</option><option value="5">Junio</option>
+                <option value="6">Julio</option><option value="7">Agosto</option>
+                <option value="8">Septiembre</option><option value="9">Octubre</option>
                     <option value="10">Noviembre</option><option value="11">Diciembre</option>
                     <option value="todos">Mostrar Todo el Año</option>
                 </select>
