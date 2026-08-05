@@ -57,7 +57,6 @@
         .btn-postal { background-color: #9b59b6; }
         .btn-postal:hover { background-color: #8e44ad; }
 
-        /* === MODALES OPTIMIZADOS PARA NO SALIRSE DE PANTALLA === */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         .modal-content { background-color: #fdf5e6; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.6); box-sizing: border-box; margin: auto; max-height: 90vh; display: flex; flex-direction: column; overflow-y: auto;}
         
@@ -67,7 +66,7 @@
         
         .btn-whatsapp { background-color: #25D366; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; flex-shrink: 0; box-sizing: border-box;}
         
-        /* === DISEÑO DE LA POSTAL (FONDO IMAGEN Y CENTRADO) === */
+        /* === DISEÑO BASE (ANIVERSARIO DE DEFUNCIÓN) === */
         .postal-canvas {
             width: 100%;
             aspect-ratio: 9 / 16; 
@@ -102,25 +101,49 @@
             background-color: #fff;
         }
         
-        /* Contenedor del texto con centrado absoluto perfecto */
         .postal-text-container {
             position: absolute;
-            top: 39%; /* Se bajó para alejarlo del borde dorado superior */
+            top: 39%; 
             left: 12%; 
             right: 12%;
-            bottom: 16%; /* Deja espacio a la frase inferior */
+            bottom: 16%; 
             text-align: center;
             z-index: 2;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Alineación vertical perfecta al centro */
-            gap: 10px; /* Separación estética entre título, nombre y mensaje */
+            justify-content: center; 
+            gap: 10px; 
         }
 
         .postal-title { font-family: 'Georgia', serif; color: #5a4634; font-size: clamp(11px, 3.5vw, 14px); letter-spacing: 1.5px; margin: 0; text-transform: uppercase; font-weight: bold;}
         .postal-name { font-family: 'Georgia', serif; color: #2c231a; font-size: clamp(18px, 6vw, 24px); margin: 0; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid rgba(200, 169, 126, 0.5); padding-bottom: 5px; width: 90%;}
         .postal-text { font-size: clamp(13px, 4.5vw, 17px); color: #333; line-height: 1.4; font-style: italic; white-space: pre-wrap; font-family: 'Georgia', serif; margin: 0; }
+
+        /* === NUEVO DISEÑO (CUMPLEAÑOS EN EL CIELO) === */
+        .layout-cumple-cielo {
+            background-image: url('fondo_cumple_cielo.png') !important;
+        }
+        
+        .layout-cumple-cielo .postal-img-container {
+            top: 17.5%; /* Altura del óvalo dorado */
+            width: 35%; /* Ancho adaptado al marco */
+            aspect-ratio: 4 / 5; /* Transforma el círculo en óvalo */
+        }
+        
+        .layout-cumple-cielo .postal-img-container img {
+            border: none; /* Quitamos el CSS del borde, usará el marco de tu foto */
+            box-shadow: none;
+        }
+        
+        .layout-cumple-cielo .postal-text-container {
+            top: 49%; /* Empieza más abajo, en la zona despejada */
+            bottom: 12%; 
+        }
+        
+        .layout-cumple-cielo .postal-title {
+            display: none; /* Oculta el título "EN MEMORIA ETERNA DE" ya que el fondo trae su propio texto */
+        }
 
         @media screen and (min-width: 601px) {
             .filters-container { flex-direction: row; }
@@ -190,7 +213,6 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('postalModal')">&times;</span>
             
-            <!-- Vista Previa de la Postal -->
             <div id="captureArea" class="postal-canvas">
                 
                 <div class="postal-img-container">
@@ -198,6 +220,7 @@
                 </div>
                 
                 <div class="postal-text-container">
+                    <!-- Este título se ocultará automáticamente en los cumpleaños en el cielo -->
                     <div id="postalHeaderTitle" class="postal-title">EN MEMORIA ETERNA DE</div>
                     <div id="postalNameTitle" class="postal-name">Nombre</div>
                     <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
@@ -351,7 +374,7 @@
 
             if (esFallecido) {
                 if (tipo === "cumpleaños" || tipo === "cumpleanos") {
-                    return `En este día especial, recordamos que ${contacto.Nombre} estaría cumpliendo ${years} años de vida. Aunque ya no nos acompaña físicamente, nos llena de alegría y paz saber que se encuentra gozando en el cielo, en la paz del Señor, reunido junto a nuestros otros seres queridos que también han partido. ¡Celebramos su vida eterna en nuestros corazones! ✨🕊️`;
+                    return `En este día especial, recordamos que ${contacto.Nombre} estaría cumpliendo ${years} años de vida. Aunque ya no nos acompaña físicamente, nos llena de alegría y paz saber que se encuentra gozando en el cielo. ¡Celebramos su vida eterna en nuestros corazones! ✨🕊️`;
                 } else {
                     return `En este día, con profundo amor y respeto, nos unimos para honrar el ${years}º aniversario de la partida de ${contacto.Nombre}. Hoy elevamos una oración y recordamos con cariño los hermosos momentos compartidos al cumplirse ${years} años de su descanso.`;
                 }
@@ -380,11 +403,19 @@
             
             let tipo = (currentContact.Tipo || "").toLowerCase();
             let esCumple = (tipo === "cumpleaños" || tipo === "cumpleanos");
+            let captureArea = document.getElementById('captureArea');
+            let headerTitle = document.getElementById('postalHeaderTitle');
 
+            // --- LÓGICA DUAL DE FONDOS ---
             if (esCumple) {
-                document.getElementById('postalHeaderTitle').innerText = "CELEBRANDO SU VIDA ETERNA";
+                // Activa diseño de cumpleaños en el cielo
+                captureArea.classList.add('layout-cumple-cielo');
+                headerTitle.style.display = 'none'; // Se oculta porque la imagen ya dice "Hay fiesta en el cielo"
             } else {
-                document.getElementById('postalHeaderTitle').innerText = "EN MEMORIA ETERNA DE";
+                // Activa diseño de aniversario de defunción estándar
+                captureArea.classList.remove('layout-cumple-cielo');
+                headerTitle.style.display = 'block';
+                headerTitle.innerText = "EN MEMORIA ETERNA DE";
             }
 
             let sugerencia = generarMensaje(currentContact);
