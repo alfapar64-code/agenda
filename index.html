@@ -91,14 +91,17 @@
             z-index: 2; 
         }
         
-        .postal-img-container img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            border-radius: 50%; 
-            border: 3px solid #d4af37; 
+        /* Uso de div como fondo para evitar deformaciones en html2canvas */
+        .postal-img-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid #d4af37;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             background-color: #fff;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         
         .postal-text-container {
@@ -129,30 +132,23 @@
             top: 17%; 
             width: 32%; 
             height: 26%; 
-            /* Eliminamos propiedades que causaban el bug de la media luna */
             aspect-ratio: auto;
-            border-radius: 0; 
-            overflow: visible; 
-            display: block;
         }
         
-        .layout-cumple-cielo .postal-img-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; 
-            border-radius: 50%; /* La foto misma se hace ovalada directamente */
-            border: none; 
+        .layout-cumple-cielo .postal-img-bg {
+            border-radius: 50%; /* Como el contenedor es rectangular, esto lo hace un óvalo perfecto */
+            border: none;
             box-shadow: none;
-            background-color: transparent !important; /* Eliminamos el fondo blanco */
+            background-color: transparent !important;
         }
         
         .layout-cumple-cielo .postal-text-container {
-            top: 48%; /* Subimos el inicio del bloque */
-            bottom: 19%; /* Subimos el final para que no toque abajo */
-            left: 25%; /* Márgenes más grandes para encajar en el óvalo */
+            top: 48%; /* El texto se mantiene igual porque nos quedó perfecto */
+            bottom: 19%; 
+            left: 25%; 
             right: 25%; 
-            gap: 0; /* Quitamos espacio entre nombre y mensaje */
-            justify-content: flex-start; /* Alineamos desde arriba para aprovechar el espacio */
+            gap: 0; 
+            justify-content: flex-start; 
         }
         
         .layout-cumple-cielo .postal-title {
@@ -162,14 +158,13 @@
         .layout-cumple-cielo .postal-name {
             color: #1b2631; 
             padding-bottom: 2px;
-            margin-bottom: 2px; /* Margen mínimo */
-            border-bottom: 1px solid rgba(27, 38, 49, 0.2); /* Línea más sutil */
+            margin-bottom: 2px; 
+            border-bottom: 1px solid rgba(27, 38, 49, 0.2); 
         }
 
         .layout-cumple-cielo .postal-text {
             font-weight: bold; 
             color: #1b2631;
-            /* Tamaño levemente ajustado para caber mejor en la columna estrecha */
             font-size: clamp(10px, 3.2vw, 13px); 
         }
 
@@ -244,7 +239,9 @@
             <div id="captureArea" class="postal-canvas">
                 
                 <div class="postal-img-container">
-                    <img id="postalImg" src="" alt="Foto" crossorigin="anonymous" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+                    <!-- Ocultamos el img real (sirve para prevenir bloqueos de seguridad CORS) y usamos el div como fondo -->
+                    <img id="postalImg" src="" crossorigin="anonymous" style="display: none;">
+                    <div id="postalImgBg" class="postal-img-bg"></div>
                 </div>
                 
                 <div class="postal-text-container">
@@ -425,7 +422,12 @@
             procesarTelefono(currentContact);
             
             let fotoUrl = (currentContact.Foto || currentContact.foto || "").trim();
-            document.getElementById('postalImg').src = fotoUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+            let finalImgUrl = fotoUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+            
+            // Asignamos la imagen tanto al img oculto (para procesar permisos) como al fondo del div
+            document.getElementById('postalImg').src = finalImgUrl;
+            document.getElementById('postalImgBg').style.backgroundImage = `url('${finalImgUrl}')`;
+            
             document.getElementById('postalNameTitle').innerText = currentContact.Nombre;
             
             let tipo = (currentContact.Tipo || "").toLowerCase();
