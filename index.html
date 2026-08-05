@@ -142,11 +142,11 @@
         }
         
         .layout-cumple-cielo .postal-text-container {
-            top: 53%; /* BAJAMOS EL INICIO para que el nombre no pise el marco dorado */
-            bottom: 12%; /* AMPLIAMOS HACIA ABAJO para que el texto tenga más espacio */
-            left: 20%; 
-            right: 20%; 
-            gap: 2px; /* Reducimos el espacio entre el nombre y el mensaje */
+            top: 50%; /* Subimos todo el bloque 3 puntos (antes 53%) */
+            bottom: 15%; /* Lo alejamos del borde inferior 3 puntos (antes 12%) */
+            left: 20%; /* Márgenes intactos */
+            right: 20%; /* Márgenes intactos */
+            gap: 2px; 
             justify-content: center; 
         }
         
@@ -159,14 +159,14 @@
             padding-bottom: 4px;
             margin-bottom: 4px; 
             border-bottom: 1px solid rgba(27, 38, 49, 0.2); 
-            font-size: clamp(16px, 5vw, 22px); /* Controlamos el tamaño del nombre */
+            font-size: clamp(16px, 5vw, 22px); 
         }
 
         .layout-cumple-cielo .postal-text {
             font-weight: bold; 
             color: #1b2631;
-            font-size: clamp(10px, 3.4vw, 14px); /* Ajuste de letra para evitar desbordes */
-            line-height: 1.4; /* Interlineado levemente más compacto */
+            font-size: clamp(10px, 3.4vw, 14px); 
+            line-height: 1.4; 
         }
 
         @media screen and (min-width: 601px) {
