@@ -143,11 +143,11 @@
         
         .layout-cumple-cielo .postal-text-container {
             top: 48%; 
-            bottom: 16%; /* Modificado para dar más espacio vertical */
-            left: 15%; /* Modificado: expande el texto hacia los lados */
-            right: 15%; /* Modificado: expande el texto hacia los lados */
-            gap: 5px; /* Devolvemos un ligero respiro entre nombre y mensaje */
-            justify-content: center; /* Alineación centrada para distribuir mejor el espacio vertical */
+            bottom: 16%; 
+            left: 20%; /* PUNTO DE EQUILIBRIO: Ni 15% ni 25%, el 20% es perfecto */
+            right: 20%; /* PUNTO DE EQUILIBRIO */
+            gap: 5px; 
+            justify-content: center; 
         }
         
         .layout-cumple-cielo .postal-title {
@@ -164,8 +164,8 @@
         .layout-cumple-cielo .postal-text {
             font-weight: bold; 
             color: #1b2631;
-            font-size: clamp(11px, 3.8vw, 15px); /* Letra ligeramente más grande */
-            line-height: 1.5; /* Interlineado más amplio para que se lea mejor y llene el espacio */
+            font-size: clamp(11px, 3.8vw, 15px); 
+            line-height: 1.5; 
         }
 
         @media screen and (min-width: 601px) {
