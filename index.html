@@ -126,23 +126,45 @@
         }
         
         .layout-cumple-cielo .postal-img-container {
-            top: 17.5%; /* Altura del óvalo dorado */
-            width: 35%; /* Ancho adaptado al marco */
-            aspect-ratio: 4 / 5; /* Transforma el círculo en óvalo */
+            top: 17%; /* Centrado en el marco dorado */
+            width: 32%; /* Ajusta el ancho para el óvalo */
+            height: 26%; /* Forzamos la altura para crear una caja ovalada */
+            aspect-ratio: auto;
+            border-radius: 50%; /* La caja actúa como una máscara que recorta la foto */
+            overflow: hidden; /* Esto evita que la imagen se deforme, solo esconde lo que sobra */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .layout-cumple-cielo .postal-img-container img {
-            border: none; /* Quitamos el CSS del borde, usará el marco de tu foto */
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* La imagen mantiene su proporción natural */
+            border-radius: 0; /* Quitamos el borde directo a la foto para que la máscara haga el trabajo */
+            border: none; 
             box-shadow: none;
         }
         
         .layout-cumple-cielo .postal-text-container {
-            top: 49%; /* Empieza más abajo, en la zona despejada */
-            bottom: 12%; 
+            top: 51%; /* Lo bajamos ligeramente para separarlo del arco superior */
+            bottom: 14%; /* Separación del fondo */
+            left: 22%; /* ¡Solución! Mayor margen izquierdo para entrar en la parte estrecha del óvalo */
+            right: 22%; /* ¡Solución! Mayor margen derecho */
         }
         
         .layout-cumple-cielo .postal-title {
-            display: none; /* Oculta el título "EN MEMORIA ETERNA DE" ya que el fondo trae su propio texto */
+            display: none; 
+        }
+
+        .layout-cumple-cielo .postal-name {
+            color: #1b2631; /* Un tono oscuro más fuerte para destacar sobre el azul claro */
+        }
+
+        .layout-cumple-cielo .postal-text {
+            font-weight: bold; /* ¡Solución! Texto en negrita para mejor legibilidad */
+            color: #1b2631;
+            font-size: clamp(12px, 3.8vw, 15px); /* Ajuste fino para la tipografía gruesa */
         }
 
         @media screen and (min-width: 601px) {
@@ -220,7 +242,6 @@
                 </div>
                 
                 <div class="postal-text-container">
-                    <!-- Este título se ocultará automáticamente en los cumpleaños en el cielo -->
                     <div id="postalHeaderTitle" class="postal-title">EN MEMORIA ETERNA DE</div>
                     <div id="postalNameTitle" class="postal-name">Nombre</div>
                     <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
@@ -406,13 +427,10 @@
             let captureArea = document.getElementById('captureArea');
             let headerTitle = document.getElementById('postalHeaderTitle');
 
-            // --- LÓGICA DUAL DE FONDOS ---
             if (esCumple) {
-                // Activa diseño de cumpleaños en el cielo
                 captureArea.classList.add('layout-cumple-cielo');
-                headerTitle.style.display = 'none'; // Se oculta porque la imagen ya dice "Hay fiesta en el cielo"
+                headerTitle.style.display = 'none'; 
             } else {
-                // Activa diseño de aniversario de defunción estándar
                 captureArea.classList.remove('layout-cumple-cielo');
                 headerTitle.style.display = 'block';
                 headerTitle.innerText = "EN MEMORIA ETERNA DE";
