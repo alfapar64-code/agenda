@@ -560,7 +560,8 @@
                 waUrl = `https://wa.me/?text=${encodedMessage}`;
             } else {
                 if (!currentContact.telefonoLimpio) {
-                    alert("Falta número o 'Grupo' en la columna Teléfono.");
+                    alert("Falta número o 'Grupo' en la columna Teléfono."); 
+                    
                     return;
                 }
                 waUrl = `https://wa.me/${currentContact.telefonoLimpio}?text=${encodedMessage}`;
