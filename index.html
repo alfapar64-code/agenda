@@ -142,10 +142,10 @@
         }
         
         .layout-cumple-cielo .postal-text-container {
-            top: 50%; /* Subimos todo el bloque 3 puntos (antes 53%) */
-            bottom: 15%; /* Lo alejamos del borde inferior 3 puntos (antes 12%) */
-            left: 20%; /* Márgenes intactos */
-            right: 20%; /* Márgenes intactos */
+            top: 50%; 
+            bottom: 15%; 
+            left: 20%; 
+            right: 20%; 
             gap: 2px; 
             justify-content: center; 
         }
@@ -316,6 +316,14 @@
                 return;
             }
 
+            // Si hay una ocasión especial seleccionada, agregamos el botón de envío masivo
+            if (selectedOccasion !== "ninguna") {
+                const btnDiv = document.createElement('div');
+                btnDiv.style.marginBottom = '15px';
+                btnDiv.innerHTML = `<button class="btn-whatsapp" onclick="abrirMensajeGrupal()" style="background-color: #f39c12; color: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">📢 Enviar a todos los contactos de esta lista (${filteredEvents.length})</button>`;
+                eventsList.appendChild(btnDiv);
+            }
+
             const currentYear = new Date().getFullYear();
             const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
@@ -390,7 +398,18 @@
             window.filteredEvents = filteredEvents;
         }
 
+        // Lógica actualizada para diferenciar cumpleaños normales de días especiales
         function generarMensaje(contacto) {
+            const selectedOccasion = document.getElementById('occasionFilter').value;
+            let nombreCorto = contacto.Nombre.split(' ')[0];
+
+            if (selectedOccasion !== "ninguna") {
+                if(selectedOccasion === "madre") return `¡Hola ${nombreCorto}! Feliz Día de la Madre. 💐 Que pases un día hermoso rodeada de mucho amor. ¡Un abrazo enorme!`;
+                if(selectedOccasion === "padre") return `¡Hola ${nombreCorto}! Feliz Día del Padre. 👔 Espero que disfrutes mucho tu día en familia. ¡Un gran abrazo!`;
+                if(selectedOccasion === "medico") return `¡Feliz Día del Médico, ${nombreCorto}! 🩺 Gracias por tu dedicación, vocación y por cuidar de la salud de todos. ¡Que pases un excelente día!`;
+                if(selectedOccasion === "ingeniero") return `¡Feliz Día del Ingeniero, ${nombreCorto}! 📐 Que sigas construyendo, diseñando y creando cosas increíbles. ¡Un fuerte abrazo!`;
+            }
+
             const currentYear = new Date().getFullYear();
             const years = currentYear - parseInt(contacto.Fecha.split('/')[2]);
             let tipo = (contacto.Tipo || "").toLowerCase();
@@ -404,14 +423,32 @@
                 }
             }
 
-            let nombreCorto = contacto.Nombre.split(' ')[0];
             return `¡Hola ${nombreCorto}! Espero que estés muy bien. Te escribo para desearte un muy feliz cumpleaños. ¡Un abrazo! 🎂`;
+        }
+
+        // Función nueva para manejar el envío a múltiples contactos a la vez
+        function abrirMensajeGrupal() {
+            const selectedOccasion = document.getElementById('occasionFilter').value;
+            let mensaje = "";
+            
+            if(selectedOccasion === "madre") mensaje = "¡Feliz Día de la Madre a todas! 💐 Que pasen un día hermoso, rodeadas de mucho amor y en familia. ¡Un abrazo enorme!";
+            if(selectedOccasion === "padre") mensaje = "¡Feliz Día del Padre! 👔 Espero que disfruten mucho su día rodeados de sus seres queridos. ¡Un gran abrazo a todos!";
+            if(selectedOccasion === "medico") mensaje = "¡Feliz Día del Médico! 🩺 Gracias por su vocación, dedicación y por cuidar de la salud de todos con tanto esfuerzo. ¡Que tengan un excelente día!";
+            if(selectedOccasion === "ingeniero") mensaje = "¡Feliz Día del Ingeniero! 📐 Que sigan construyendo, diseñando y creando cosas increíbles. ¡Un fuerte abrazo y muchos éxitos!";
+            
+            // Engañamos al sistema diciéndole que es un grupo para que abra el selector de reenvío
+            currentContact = { esGrupo: true }; 
+            
+            document.getElementById('modalHint').innerText = "Mensaje genérico listo. Al pulsar enviar, WhatsApp te permitirá seleccionar hasta 5 contactos a la vez para reenviarlo.";
+            document.getElementById('messageBox').value = mensaje;
+            document.getElementById('msgModal').style.display = "flex";
         }
 
         function abrirRedactor(index) {
             currentContact = window.filteredEvents[index];
             if (!currentContact) return;
             procesarTelefono(currentContact);
+            document.getElementById('modalHint').innerText = "He redactado este mensaje basándome en tu relación. Puedes editarlo antes de enviarlo.";
             document.getElementById('messageBox').value = generarMensaje(currentContact);
             document.getElementById('msgModal').style.display = "flex";
         }
@@ -443,6 +480,7 @@
                 headerTitle.innerText = "EN MEMORIA ETERNA DE";
             }
 
+            document.getElementById('modalHint').innerText = "He redactado este mensaje basándome en tu relación. Puedes editarlo antes de enviarlo.";
             let sugerencia = generarMensaje(currentContact);
             document.getElementById('postalTextBox').value = sugerencia;
             updatePostalLive();
@@ -517,6 +555,7 @@
         function abrirEnlaceWhatsApp(mensajeTexto) {
             const encodedMessage = encodeURIComponent(mensajeTexto);
             let waUrl = "";
+            // Si le dijimos al sistema que "esGrupo" (sea para el envío masivo o porque dice 'grupo' en el Excel)
             if (currentContact.esGrupo) {
                 waUrl = `https://wa.me/?text=${encodedMessage}`;
             } else {
