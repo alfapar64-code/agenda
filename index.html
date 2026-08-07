@@ -127,47 +127,53 @@
             background-image: url('fondo_cumple_cielo.png') !important;
         }
         
-        .layout-cumple-cielo .postal-img-container {
-            top: 17%; 
-            width: 32%; 
-            height: 26%; 
-            aspect-ratio: auto;
-        }
-        
-        .layout-cumple-cielo .postal-img-bg {
-            border-radius: 50%; 
-            border: none;
-            box-shadow: none;
-            background-color: transparent !important;
-        }
-        
-        .layout-cumple-cielo .postal-text-container {
-            top: 50%; 
-            bottom: 15%; 
-            left: 20%; 
-            right: 20%; 
-            gap: 2px; 
-            justify-content: center; 
-        }
-        
-        .layout-cumple-cielo .postal-title {
-            display: none; 
-        }
+        .layout-cumple-cielo .postal-img-container { top: 17%; width: 32%; height: 26%; aspect-ratio: auto; }
+        .layout-cumple-cielo .postal-img-bg { border-radius: 50%; border: none; box-shadow: none; background-color: transparent !important; }
+        .layout-cumple-cielo .postal-text-container { top: 50%; bottom: 15%; left: 20%; right: 20%; gap: 2px; justify-content: center; }
+        .layout-cumple-cielo .postal-title { display: none; }
+        .layout-cumple-cielo .postal-name { color: #1b2631; padding-bottom: 4px; margin-bottom: 4px; border-bottom: 1px solid rgba(27, 38, 49, 0.2); font-size: clamp(16px, 5vw, 22px); }
+        .layout-cumple-cielo .postal-text { font-weight: bold; color: #1b2631; font-size: clamp(10px, 3.4vw, 14px); line-height: 1.4; }
 
-        .layout-cumple-cielo .postal-name {
-            color: #1b2631; 
-            padding-bottom: 4px;
-            margin-bottom: 4px; 
-            border-bottom: 1px solid rgba(27, 38, 49, 0.2); 
-            font-size: clamp(16px, 5vw, 22px); 
+        /* === DISEÑO NUEVO: SALUDO AL GRUPO FAMILIAR === */
+        .saludo-canvas {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Alinea el contenido hacia abajo */
+            margin-bottom: 15px;
         }
-
-        .layout-cumple-cielo .postal-text {
-            font-weight: bold; 
-            color: #1b2631;
-            font-size: clamp(10px, 3.4vw, 14px); 
-            line-height: 1.4; 
+        
+        .saludo-overlay {
+            /* Un degradado oscuro desde abajo hacia arriba para que el texto resalte siempre */
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 1;
         }
+        
+        .saludo-content-box {
+            position: relative;
+            z-index: 2;
+            padding: 25px 20px;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .saludo-header-txt { font-size: 26px; font-weight: bold; font-family: 'Georgia', serif; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); color: #fdf5e6;}
+        .saludo-location { font-size: 15px; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        .saludo-weather { font-size: 16px; font-weight: bold; color: #f1c40f; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        .saludo-efemeride { font-size: 13px; line-height: 1.5; background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px; border-left: 4px solid #f1c40f; text-align: left; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); margin-top: 5px; }
 
         @media screen and (min-width: 601px) {
             .filters-container { flex-direction: row; }
@@ -185,6 +191,14 @@
     </div>
 
     <div class="container">
+        
+        <!-- BOTÓN NUEVO: SALUDO DIARIO -->
+        <div style="margin-bottom: 25px;">
+            <button class="btn-whatsapp" onclick="abrirSaludoDiario()" style="background-color: #2980b9; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-size: 15px;">
+                🌅 Generar Saludo Diario para Hermanos
+            </button>
+        </div>
+
         <div class="filters-container">
             <div class="filter-box">
                 <label for="monthFilter">📅 Cumpleaños y Aniversarios:</label>
@@ -236,36 +250,57 @@
     <div id="postalModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('postalModal')">&times;</span>
-            
             <div id="captureArea" class="postal-canvas">
-                
                 <div class="postal-img-container">
                     <img id="postalImg" src="" crossorigin="anonymous" style="display: none;">
                     <div id="postalImgBg" class="postal-img-bg"></div>
                 </div>
-                
                 <div class="postal-text-container">
                     <div id="postalHeaderTitle" class="postal-title">EN MEMORIA ETERNA DE</div>
                     <div id="postalNameTitle" class="postal-name">Nombre</div>
                     <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
                 </div>
-
             </div>
-
             <p style="font-size: 12px; color: #5a4634; margin: 0 0 5px; font-weight: bold;">Edita el mensaje de la postal aquí:</p>
             <textarea id="postalTextBox" oninput="updatePostalLive()"></textarea>
-            
-            <button class="btn-whatsapp" onclick="sharePostal()" style="background-color: #9b59b6;">
+            <button class="btn-whatsapp" onclick="sharePostal('captureArea')" style="background-color: #9b59b6;">
                 📸 Compartir / Descargar Postal
             </button>
         </div>
     </div>
+
+    <!-- MODAL NUEVO: SALUDO DIARIO -->
+    <div id="saludoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('saludoModal')">&times;</span>
+            
+            <div id="saludoCaptureArea" class="saludo-canvas">
+                <div class="saludo-overlay"></div>
+                <!-- El contenido (clima y efemérides) se insertará aquí con JavaScript -->
+                <div id="saludoTextContent" class="saludo-content-box">
+                    Cargando los datos de hoy... ⏳
+                </div>
+            </div>
+
+            <p style="font-size: 12px; color: #5a4634; margin: 0 0 10px; font-weight: bold; text-align:center;">
+                El clima y las efemérides se extraen solos de la red. 🤖
+            </p>
+            
+            <button class="btn-whatsapp" onclick="sharePostal('saludoCaptureArea')" style="background-color: #e67e22;">
+                📸 Compartir al Grupo
+            </button>
+        </div>
+    </div>
+
 
     <script>
         const urlDelExcel = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTY3pSQRl_Sh7xG--woGXQvMAOSfoMpqIzxA8qn95TDNnqk9yOAflX-DSNQrkuqWkbEiyK1sEN_qdUF/pub?output=csv"; 
         
         let miAgenda = []; 
         let currentContact = null;
+        
+        // CANTIDAD DE FONDOS DISPONIBLES PARA EL SALUDO:
+        const TOTAL_FONDOS_SALUDO = 5;
 
         window.onload = function() {
             const currentMonth = new Date().getMonth();
@@ -316,7 +351,6 @@
                 return;
             }
 
-            // Si hay una ocasión especial seleccionada, agregamos el botón de envío masivo
             if (selectedOccasion !== "ninguna") {
                 const btnDiv = document.createElement('div');
                 btnDiv.style.marginBottom = '15px';
@@ -398,7 +432,78 @@
             window.filteredEvents = filteredEvents;
         }
 
-        // Lógica actualizada para diferenciar cumpleaños normales de días especiales
+        // ==========================================
+        // LÓGICA DEL NUEVO SALUDO DIARIO MAÑANERO
+        // ==========================================
+        async function abrirSaludoDiario() {
+            document.getElementById('saludoModal').style.display = 'flex';
+            const contenedor = document.getElementById('saludoTextContent');
+            contenedor.innerHTML = 'Cargando el clima y la historia de hoy... ⏳';
+            
+            try {
+                // 1. Elegimos un fondo aleatorio del 1 al TOTAL
+                const numBg = Math.floor(Math.random() * TOTAL_FONDOS_SALUDO) + 1;
+                document.getElementById('saludoCaptureArea').style.backgroundImage = `url('fondo_saludo_${numBg}.jpg')`;
+
+                // 2. Calculamos el saludo según la hora local
+                const hora = new Date().getHours();
+                let saludo = "Buenos días";
+                if (hora >= 12 && hora < 19) saludo = "Buenas tardes";
+                else if (hora >= 19) saludo = "Buenas noches";
+
+                // 3. Traemos el clima de Buenos Aires (Open-Meteo)
+                const weatherRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.6131&longitude=-58.3772&current_weather=true');
+                const weatherData = await weatherRes.json();
+                const temp = weatherData.current_weather.temperature;
+                const code = weatherData.current_weather.weathercode;
+                const climaDesc = mapWeatherCode(code);
+
+                // 4. Traemos una efeméride aleatoria de Wikipedia
+                const hoy = new Date();
+                const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+                const dia = String(hoy.getDate()).padStart(2, '0');
+                
+                let efemerideText = "";
+                try {
+                    const wikiRes = await fetch(`https://es.wikipedia.org/api/rest_v1/feed/onthisday/events/${mes}/${dia}`);
+                    const wikiData = await wikiRes.json();
+                    const events = wikiData.events;
+                    // Elegimos un evento al azar de la lista
+                    const evt = events[Math.floor(Math.random() * events.length)];
+                    efemerideText = `💡 <b>Tal día como hoy en ${evt.year}:</b> ${evt.text}`;
+                } catch (e) {
+                    efemerideText = `💡 ¡Hoy es un día excelente para seguir construyendo nuestra historia familiar!`;
+                }
+
+                // 5. Armamos todo el texto en pantalla
+                const htmlFinal = `
+                    <div class="saludo-header-txt">¡${saludo} hermanos! 👋</div>
+                    <div class="saludo-location">Les saludo desde Buenos Aires. 🇦🇷</div>
+                    <div class="saludo-weather">🌡️ Temperatura: ${Math.round(temp)}°C (${climaDesc})</div>
+                    <div class="saludo-efemeride">${efemerideText}</div>
+                `;
+                contenedor.innerHTML = htmlFinal;
+
+            } catch (error) {
+                contenedor.innerHTML = 'Hubo un error cargando los datos. Revisa tu conexión a internet.';
+            }
+        }
+
+        // Traductor de códigos de clima internacionales a Español
+        function mapWeatherCode(code) {
+            if (code === 0) return "Despejado ☀️";
+            if (code >= 1 && code <= 3) return "Parcialmente nublado ⛅";
+            if (code === 45 || code === 48) return "Niebla 🌫️";
+            if (code >= 51 && code <= 57) return "Llovizna 🌦️";
+            if (code >= 61 && code <= 67) return "Lluvioso 🌧️";
+            if (code >= 71 && code <= 77) return "Nevando ❄️";
+            if (code >= 80 && code <= 82) return "Aguaceros 🌧️";
+            if (code >= 95) return "Tormenta ⛈️";
+            return "Nublado ☁️";
+        }
+        // ==========================================
+
+
         function generarMensaje(contacto) {
             const selectedOccasion = document.getElementById('occasionFilter').value;
             let nombreCorto = contacto.Nombre.split(' ')[0];
@@ -426,7 +531,6 @@
             return `¡Hola ${nombreCorto}! Espero que estés muy bien. Te escribo para desearte un muy feliz cumpleaños. ¡Un abrazo! 🎂`;
         }
 
-        // Función nueva para manejar el envío a múltiples contactos a la vez
         function abrirMensajeGrupal() {
             const selectedOccasion = document.getElementById('occasionFilter').value;
             let mensaje = "";
@@ -436,7 +540,6 @@
             if(selectedOccasion === "medico") mensaje = "¡Feliz Día del Médico! 🩺 Gracias por su vocación, dedicación y por cuidar de la salud de todos con tanto esfuerzo. ¡Que tengan un excelente día!";
             if(selectedOccasion === "ingeniero") mensaje = "¡Feliz Día del Ingeniero! 📐 Que sigan construyendo, diseñando y creando cosas increíbles. ¡Un fuerte abrazo y muchos éxitos!";
             
-            // Engañamos al sistema diciéndole que es un grupo para que abra el selector de reenvío
             currentContact = { esGrupo: true }; 
             
             document.getElementById('modalHint').innerText = "Mensaje genérico listo. Al pulsar enviar, WhatsApp te permitirá seleccionar hasta 5 contactos a la vez para reenviarlo.";
@@ -513,10 +616,9 @@
             closeModal('msgModal');
         }
 
-        async function sharePostal() {
-            if (!currentContact) return;
-            
-            const captureArea = document.getElementById('captureArea');
+        // Modificamos la función para que reciba qué "canvas" debe fotografiar
+        async function sharePostal(idCanvas) {
+            const captureArea = document.getElementById(idCanvas);
             
             try {
                 const canvas = await html2canvas(captureArea, { 
@@ -527,27 +629,30 @@
                 });
                 
                 canvas.toBlob(async function(blob) {
-                    const file = new File([blob], 'postal_efemeride.png', { type: 'image/png' });
+                    const nombreArchivo = idCanvas === 'saludoCaptureArea' ? 'Saludo_Mañanero.png' : 'postal_efemeride.png';
+                    const file = new File([blob], nombreArchivo, { type: 'image/png' });
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
                                 files: [file]
                             });
+                            // Cerramos ambos modales por si acaso
                             closeModal('postalModal');
+                            closeModal('saludoModal');
                         } catch (err) {
                             console.log("Error compartiendo", err);
                         }
                     } else {
                         const link = document.createElement('a');
-                        link.download = `Efemeride_${currentContact.Nombre.replace(/\s/g, '_')}.png`;
+                        link.download = nombreArchivo;
                         link.href = canvas.toDataURL();
                         link.click();
-                        alert("¡Postal descargada! Ahora puedes enviarla manualmente por WhatsApp a tu grupo.");
+                        alert("¡Imagen descargada! Ahora puedes enviarla manualmente por WhatsApp.");
                     }
                 });
             } catch (error) {
-                alert("Hubo un error al generar la imagen. Asegúrate de que las fotos tengan permisos públicos.");
+                alert("Hubo un error al generar la imagen. Asegúrate de que los permisos de red estén correctos.");
                 console.error(error);
             }
         }
@@ -555,13 +660,11 @@
         function abrirEnlaceWhatsApp(mensajeTexto) {
             const encodedMessage = encodeURIComponent(mensajeTexto);
             let waUrl = "";
-            // Si le dijimos al sistema que "esGrupo" (sea para el envío masivo o porque dice 'grupo' en el Excel)
-            if (currentContact.esGrupo) {
+            if (currentContact && currentContact.esGrupo) {
                 waUrl = `https://wa.me/?text=${encodedMessage}`;
-            } else {
+            } else if (currentContact) {
                 if (!currentContact.telefonoLimpio) {
-                    alert("Falta número o 'Grupo' en la columna Teléfono."); 
-                    
+                    alert("Falta número o 'Grupo' en la columna Teléfono.");
                     return;
                 }
                 waUrl = `https://wa.me/${currentContact.telefonoLimpio}?text=${encodedMessage}`;
