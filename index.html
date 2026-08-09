@@ -15,6 +15,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
+        /* === FUENTES PERSONALIZADAS === */
+        @font-face {
+            font-family: 'Bananas';
+            src: url('bananas.ttf') format('truetype'); 
+            /* Sube tu archivo bananas.ttf a GitHub para que funcione esta línea */
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4eee1;
@@ -66,73 +74,90 @@
         
         .btn-whatsapp { background-color: #25D366; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; flex-shrink: 0; box-sizing: border-box;}
         
-        /* === DISEÑO BASE (ANIVERSARIO DE DEFUNCIÓN) === */
+        /* === DISEÑO DE POSTAL DE DIFUNTOS (CAPAS) === */
         .postal-canvas {
             width: 100%;
             aspect-ratio: 9 / 16; 
-            background-image: url('fondo_postal.png'); 
-            background-size: 100% 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-            position: relative;
+            position: relative; /* Contenedor principal */
             margin-bottom: 10px;
             border-radius: 8px;
             overflow: hidden;
-            flex-grow: 1; 
+            background-color: #fff; 
         }
         
-        .postal-img-container { 
-            position: absolute; 
-            top: 17%; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 25%; 
-            aspect-ratio: 1 / 1; 
-            z-index: 2; 
-        }
-        
-        .postal-img-bg {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 3px solid #d4af37;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            background-color: #fff;
+        /* Capa 1: Foto por debajo */
+        .postal-img-bg-under {
+            position: absolute;
+            top: 2%; 
+            left: 15%; 
+            width: 70%; 
+            height: 42%; 
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            z-index: 1; /* Nivel 1: Hasta el fondo */
         }
         
+        /* Capa 2: Marco PNG por encima */
+        .postal-frame-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 2; /* Nivel 2: Sobre la foto */
+            pointer-events: none; 
+        }
+        
+        /* Capa 3: Textos */
         .postal-text-container {
             position: absolute;
-            top: 39%; 
+            top: 41%; /* Ajustado para empezar justo debajo del círculo floral */
             left: 12%; 
             right: 12%;
-            bottom: 16%; 
+            bottom: 13%; 
             text-align: center;
-            z-index: 2;
+            z-index: 3; /* Nivel 3: Hasta arriba */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; 
-            gap: 10px; 
+            justify-content: flex-start; 
         }
 
-        .postal-title { font-family: 'Georgia', serif; color: #5a4634; font-size: clamp(11px, 3.5vw, 14px); letter-spacing: 1.5px; margin: 0; text-transform: uppercase; font-weight: bold;}
-        .postal-name { font-family: 'Georgia', serif; color: #2c231a; font-size: clamp(18px, 6vw, 24px); margin: 0; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid rgba(200, 169, 126, 0.5); padding-bottom: 5px; width: 90%;}
-        .postal-text { font-size: clamp(13px, 4.5vw, 17px); color: #333; line-height: 1.4; font-style: italic; white-space: pre-wrap; font-family: 'Georgia', serif; margin: 0; }
-
-        /* === NUEVO DISEÑO (CUMPLEAÑOS EN EL CIELO) === */
-        .layout-cumple-cielo {
-            background-image: url('fondo_cumple_cielo.png') !important;
+        /* Títulos y Tipografías Solicitadas */
+        .postal-title { 
+            font-family: 'Cambria', serif; 
+            color: #2c231a; 
+            /* Se usa clamp para simular los 13.518 pt pero evitando que se desborde en pantallas pequeñas */
+            font-size: clamp(14px, 3.5vw, 18px); 
+            letter-spacing: 1px; 
+            margin: 0 0 5px 0; 
+            text-transform: uppercase; 
+            font-weight: bold;
         }
-        
-        .layout-cumple-cielo .postal-img-container { top: 17%; width: 32%; height: 26%; aspect-ratio: auto; }
-        .layout-cumple-cielo .postal-img-bg { border-radius: 50%; border: none; box-shadow: none; background-color: transparent !important; }
-        .layout-cumple-cielo .postal-text-container { top: 50%; bottom: 15%; left: 20%; right: 20%; gap: 2px; justify-content: center; }
-        .layout-cumple-cielo .postal-title { display: none; }
-        .layout-cumple-cielo .postal-name { color: #1b2631; padding-bottom: 4px; margin-bottom: 4px; border-bottom: 1px solid rgba(27, 38, 49, 0.2); font-size: clamp(16px, 5vw, 22px); }
-        .layout-cumple-cielo .postal-text { font-weight: bold; color: #1b2631; font-size: clamp(10px, 3.4vw, 14px); line-height: 1.4; }
+
+        .postal-name { 
+            /* Usa 'Bananas' si la subes, si no, usa Great Vibes como respaldo de emergencia */
+            font-family: 'Bananas', 'Great Vibes', cursive; 
+            color: #4a3b2c; 
+            /* Equivalente aproximado a tus 30.699 pt */
+            font-size: clamp(30px, 7vw, 41px); 
+            margin: 0 0 10px 0; 
+            font-weight: normal; 
+            text-transform: none; 
+            line-height: 1;
+        }
+
+        .postal-text { 
+            /* Equivalente aproximado a tus 17.298 pt */
+            font-size: clamp(15px, 4.5vw, 23px); 
+            color: #1b2631; 
+            line-height: 1.3; 
+            font-style: italic; 
+            white-space: pre-wrap; 
+            font-family: 'Georgia', serif; 
+            margin: 0; 
+        }
 
         /* === DISEÑO NUEVO: SALUDO AL GRUPO FAMILIAR === */
         .saludo-canvas {
@@ -145,31 +170,16 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* Alinea el contenido hacia abajo */
+            justify-content: flex-end;
             margin-bottom: 15px;
         }
         
         .saludo-overlay {
-            /* Un degradado oscuro desde abajo hacia arriba para que el texto resalte siempre */
             background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0; left: 0;
-            z-index: 1;
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;
         }
         
-        .saludo-content-box {
-            position: relative;
-            z-index: 2;
-            padding: 25px 20px;
-            color: white;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
+        .saludo-content-box { position: relative; z-index: 2; padding: 25px 20px; color: white; text-align: center; display: flex; flex-direction: column; gap: 12px; }
         .saludo-header-txt { font-size: 26px; font-weight: bold; font-family: 'Georgia', serif; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); color: #fdf5e6;}
         .saludo-location { font-size: 15px; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
         .saludo-weather { font-size: 16px; font-weight: bold; color: #f1c40f; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
@@ -250,19 +260,23 @@
     <div id="postalModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('postalModal')">&times;</span>
+            
             <div id="captureArea" class="postal-canvas">
-                <div class="postal-img-container">
-                    <img id="postalImg" src="" crossorigin="anonymous" style="display: none;">
-                    <div id="postalImgBg" class="postal-img-bg"></div>
-                </div>
+                <!-- Capa 1: Foto fondo -->
+                <div id="postalImgBgUnder" class="postal-img-bg-under"></div>
+                <!-- Capa 2: Marco PNG -->
+                <div id="postalFrameOverlay" class="postal-frame-overlay"></div>
+                <!-- Capa 3: Textos -->
                 <div class="postal-text-container">
                     <div id="postalHeaderTitle" class="postal-title">EN MEMORIA ETERNA DE</div>
                     <div id="postalNameTitle" class="postal-name">Nombre</div>
                     <div id="postalTextLive" class="postal-text">El texto aparecerá aquí...</div>
                 </div>
             </div>
+
             <p style="font-size: 12px; color: #5a4634; margin: 0 0 5px; font-weight: bold;">Edita el mensaje de la postal aquí:</p>
             <textarea id="postalTextBox" oninput="updatePostalLive()"></textarea>
+            
             <button class="btn-whatsapp" onclick="sharePostal('captureArea')" style="background-color: #9b59b6;">
                 📸 Compartir / Descargar Postal
             </button>
@@ -273,33 +287,26 @@
     <div id="saludoModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('saludoModal')">&times;</span>
-            
             <div id="saludoCaptureArea" class="saludo-canvas">
                 <div class="saludo-overlay"></div>
-                <!-- El contenido (clima y efemérides) se insertará aquí con JavaScript -->
                 <div id="saludoTextContent" class="saludo-content-box">
                     Cargando los datos de hoy... ⏳
                 </div>
             </div>
-
             <p style="font-size: 12px; color: #5a4634; margin: 0 0 10px; font-weight: bold; text-align:center;">
                 El clima y las efemérides se extraen solos de la red. 🤖
             </p>
-            
             <button class="btn-whatsapp" onclick="sharePostal('saludoCaptureArea')" style="background-color: #e67e22;">
                 📸 Compartir al Grupo
             </button>
         </div>
     </div>
 
-
     <script>
         const urlDelExcel = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTY3pSQRl_Sh7xG--woGXQvMAOSfoMpqIzxA8qn95TDNnqk9yOAflX-DSNQrkuqWkbEiyK1sEN_qdUF/pub?output=csv"; 
         
         let miAgenda = []; 
         let currentContact = null;
-        
-        // CANTIDAD DE FONDOS DISPONIBLES PARA EL SALUDO:
         const TOTAL_FONDOS_SALUDO = 5;
 
         window.onload = function() {
@@ -432,33 +439,26 @@
             window.filteredEvents = filteredEvents;
         }
 
-        // ==========================================
-        // LÓGICA DEL NUEVO SALUDO DIARIO MAÑANERO
-        // ==========================================
         async function abrirSaludoDiario() {
             document.getElementById('saludoModal').style.display = 'flex';
             const contenedor = document.getElementById('saludoTextContent');
             contenedor.innerHTML = 'Cargando el clima y la historia de hoy... ⏳';
             
             try {
-                // 1. Elegimos un fondo aleatorio del 1 al TOTAL
                 const numBg = Math.floor(Math.random() * TOTAL_FONDOS_SALUDO) + 1;
-                document.getElementById('saludoCaptureArea').style.backgroundImage = `url('fondo_saludo_${numBg}.png')`;
+                document.getElementById('saludoCaptureArea').style.backgroundImage = `url('fondo_saludo_${numBg}.jpg')`;
 
-                // 2. Calculamos el saludo según la hora local
                 const hora = new Date().getHours();
                 let saludo = "Buenos días";
                 if (hora >= 12 && hora < 19) saludo = "Buenas tardes";
                 else if (hora >= 19) saludo = "Buenas noches";
 
-                // 3. Traemos el clima de Buenos Aires (Open-Meteo)
                 const weatherRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.6131&longitude=-58.3772&current_weather=true');
                 const weatherData = await weatherRes.json();
                 const temp = weatherData.current_weather.temperature;
                 const code = weatherData.current_weather.weathercode;
                 const climaDesc = mapWeatherCode(code);
 
-                // 4. Traemos una efeméride aleatoria de Wikipedia
                 const hoy = new Date();
                 const mes = String(hoy.getMonth() + 1).padStart(2, '0');
                 const dia = String(hoy.getDate()).padStart(2, '0');
@@ -468,14 +468,12 @@
                     const wikiRes = await fetch(`https://es.wikipedia.org/api/rest_v1/feed/onthisday/events/${mes}/${dia}`);
                     const wikiData = await wikiRes.json();
                     const events = wikiData.events;
-                    // Elegimos un evento al azar de la lista
                     const evt = events[Math.floor(Math.random() * events.length)];
                     efemerideText = `💡 <b>Tal día como hoy en ${evt.year}:</b> ${evt.text}`;
                 } catch (e) {
                     efemerideText = `💡 ¡Hoy es un día excelente para seguir construyendo nuestra historia familiar!`;
                 }
 
-                // 5. Armamos todo el texto en pantalla
                 const htmlFinal = `
                     <div class="saludo-header-txt">¡${saludo} hermanos! 👋</div>
                     <div class="saludo-location">Les saludo desde Buenos Aires. 🇦🇷</div>
@@ -489,7 +487,6 @@
             }
         }
 
-        // Traductor de códigos de clima internacionales a Español
         function mapWeatherCode(code) {
             if (code === 0) return "Despejado ☀️";
             if (code >= 1 && code <= 3) return "Parcialmente nublado ⛅";
@@ -501,8 +498,6 @@
             if (code >= 95) return "Tormenta ⛈️";
             return "Nublado ☁️";
         }
-        // ==========================================
-
 
         function generarMensaje(contacto) {
             const selectedOccasion = document.getElementById('occasionFilter').value;
@@ -521,11 +516,7 @@
             let esFallecido = (tipo === "defuncion" || tipo === "defunción" || miAgenda.some(c => c.Nombre === contacto.Nombre && (c.Tipo.toLowerCase() === "defuncion" || c.Tipo.toLowerCase() === "defunción")));
 
             if (esFallecido) {
-                if (tipo === "cumpleaños" || tipo === "cumpleanos") {
-                    return `En este día especial, recordamos que ${contacto.Nombre} estaría cumpliendo ${years} años de vida. Aunque ya no nos acompaña físicamente, nos llena de alegría y paz saber que se encuentra gozando en el cielo. ¡Celebramos su vida eterna en nuestros corazones! ✨🕊️`;
-                } else {
-                    return `En este día, con profundo amor y respeto, nos unimos para honrar el ${years}º aniversario de la partida de ${contacto.Nombre}. Hoy elevamos una oración y recordamos con cariño los hermosos momentos compartidos al cumplirse ${years} años de su descanso.`;
-                }
+                return `En este día, con profundo amor y respeto, nos unimos para honrar el ${years}º aniversario de la partida de ${contacto.Nombre}. Hoy elevamos una oración y recordamos con cariño los hermosos momentos compartidos al cumplirse ${years} años de su descanso.`;
             }
 
             return `¡Hola ${nombreCorto}! Espero que estés muy bien. Te escribo para desearte un muy feliz cumpleaños. ¡Un abrazo! 🎂`;
@@ -561,28 +552,20 @@
             if (!currentContact) return;
             procesarTelefono(currentContact);
             
+            // 1. Extraer el género del Excel (M o F). Si no existe la columna, asume F por defecto.
+            let genero = (currentContact.Genero || currentContact.genero || "F").toUpperCase();
+            
+            // 2. Elegir el marco PNG correspondiente
+            let marcoImg = genero === 'M' ? 'fondo_masculino.png' : 'fondo_femenino.png';
+            document.getElementById('postalFrameOverlay').style.backgroundImage = `url('${marcoImg}')`;
+            
+            // 3. Poner la foto del difunto por debajo
             let fotoUrl = (currentContact.Foto || currentContact.foto || "").trim();
             let finalImgUrl = fotoUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+            document.getElementById('postalImgBgUnder').style.backgroundImage = `url('${finalImgUrl}')`;
             
-            document.getElementById('postalImg').src = finalImgUrl;
-            document.getElementById('postalImgBg').style.backgroundImage = `url('${finalImgUrl}')`;
-            
+            // 4. Asignar el texto
             document.getElementById('postalNameTitle').innerText = currentContact.Nombre;
-            
-            let tipo = (currentContact.Tipo || "").toLowerCase();
-            let esCumple = (tipo === "cumpleaños" || tipo === "cumpleanos");
-            let captureArea = document.getElementById('captureArea');
-            let headerTitle = document.getElementById('postalHeaderTitle');
-
-            if (esCumple) {
-                captureArea.classList.add('layout-cumple-cielo');
-                headerTitle.style.display = 'none'; 
-            } else {
-                captureArea.classList.remove('layout-cumple-cielo');
-                headerTitle.style.display = 'block';
-                headerTitle.innerText = "EN MEMORIA ETERNA DE";
-            }
-
             document.getElementById('modalHint').innerText = "He redactado este mensaje basándome en tu relación. Puedes editarlo antes de enviarlo.";
             let sugerencia = generarMensaje(currentContact);
             document.getElementById('postalTextBox').value = sugerencia;
@@ -616,7 +599,6 @@
             closeModal('msgModal');
         }
 
-        // Modificamos la función para que reciba qué "canvas" debe fotografiar
         async function sharePostal(idCanvas) {
             const captureArea = document.getElementById(idCanvas);
             
@@ -637,7 +619,6 @@
                             await navigator.share({
                                 files: [file]
                             });
-                            // Cerramos ambos modales por si acaso
                             closeModal('postalModal');
                             closeModal('saludoModal');
                         } catch (err) {
