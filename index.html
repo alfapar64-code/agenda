@@ -19,7 +19,6 @@
         @font-face {
             font-family: 'Bananas';
             src: url('bananas.ttf') format('truetype'); 
-            /* Sube tu archivo bananas.ttf a GitHub para que funcione esta línea */
         }
         @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
@@ -78,24 +77,25 @@
         .postal-canvas {
             width: 100%;
             aspect-ratio: 9 / 16; 
-            position: relative; /* Contenedor principal */
+            position: relative; 
             margin-bottom: 10px;
             border-radius: 8px;
             overflow: hidden;
             background-color: #fff; 
         }
         
-        /* Capa 1: Foto por debajo */
+        /* Capa 1: Foto por debajo (CORREGIDA PARA QUE SEA UN CÍRCULO) */
         .postal-img-bg-under {
             position: absolute;
-            top: 2%; 
-            left: 15%; 
-            width: 70%; 
-            height: 42%; 
+            top: 5.5%; /* Bajamos la foto un poco */
+            left: 21%; /* La centramos horizontalmente */
+            width: 58%; /* La hacemos más pequeña para que no se salga por los lados */
+            aspect-ratio: 1 / 1; /* Forzamos a que sea un cuadrado perfecto... */
+            border-radius: 50%; /* ...y luego lo convertimos en un círculo perfecto */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            z-index: 1; /* Nivel 1: Hasta el fondo */
+            z-index: 1; 
         }
         
         /* Capa 2: Marco PNG por encima */
@@ -105,54 +105,51 @@
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
-            z-index: 2; /* Nivel 2: Sobre la foto */
+            z-index: 2; 
             pointer-events: none; 
         }
         
-        /* Capa 3: Textos */
+        /* Capa 3: Textos (CORREGIDOS LOS LÍMITES) */
         .postal-text-container {
             position: absolute;
-            top: 41%; /* Ajustado para empezar justo debajo del círculo floral */
-            left: 12%; 
-            right: 12%;
-            bottom: 13%; 
+            top: 41%; 
+            left: 10%; /* Un poquito más ancho a los lados */
+            right: 10%;
+            bottom: 21%; /* LÍMITE INFERIOR SUBIDO para que no pise la iglesia ni la vela */
             text-align: center;
-            z-index: 3; /* Nivel 3: Hasta arriba */
+            z-index: 3; 
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start; 
         }
 
-        /* Títulos y Tipografías Solicitadas */
+        /* Títulos y Tipografías */
         .postal-title { 
             font-family: 'Cambria', serif; 
             color: #2c231a; 
-            /* Se usa clamp para simular los 13.518 pt pero evitando que se desborde en pantallas pequeñas */
-            font-size: clamp(14px, 3.5vw, 18px); 
+            font-size: clamp(12px, 3vw, 16px); /* Letra un poquito más ajustada */
             letter-spacing: 1px; 
-            margin: 0 0 5px 0; 
+            margin: 0 0 3px 0; 
             text-transform: uppercase; 
             font-weight: bold;
         }
 
         .postal-name { 
-            /* Usa 'Bananas' si la subes, si no, usa Great Vibes como respaldo de emergencia */
             font-family: 'Bananas', 'Great Vibes', cursive; 
             color: #4a3b2c; 
-            /* Equivalente aproximado a tus 30.699 pt */
-            font-size: clamp(30px, 7vw, 41px); 
-            margin: 0 0 10px 0; 
+            font-size: clamp(26px, 6vw, 36px); 
+            margin: 0 0 6px 0; 
             font-weight: normal; 
             text-transform: none; 
             line-height: 1;
         }
 
+        /* CUERPO DEL MENSAJE (TAMAÑO REDUCIDO) */
         .postal-text { 
-            /* Equivalente aproximado a tus 17.298 pt */
-            font-size: clamp(15px, 4.5vw, 23px); 
+            font-size: clamp(12px, 3.3vw, 17px); /* Letra más pequeña para que encaje bien */
             color: #1b2631; 
-            line-height: 1.3; 
+            line-height: 1.25; /* Interlineado más compacto */
             font-style: italic; 
             white-space: pre-wrap; 
             font-family: 'Georgia', serif; 
@@ -202,7 +199,6 @@
 
     <div class="container">
         
-        <!-- BOTÓN NUEVO: SALUDO DIARIO -->
         <div style="margin-bottom: 25px;">
             <button class="btn-whatsapp" onclick="abrirSaludoDiario()" style="background-color: #2980b9; box-shadow: 0 4px 6px rgba(0,0,0,0.2); font-size: 15px;">
                 🌅 Generar Saludo Diario para Hermanos
@@ -552,19 +548,14 @@
             if (!currentContact) return;
             procesarTelefono(currentContact);
             
-            // 1. Extraer el género del Excel (M o F). Si no existe la columna, asume F por defecto.
             let genero = (currentContact.Genero || currentContact.genero || "F").toUpperCase();
-            
-            // 2. Elegir el marco PNG correspondiente
             let marcoImg = genero === 'M' ? 'fondo_masculino.png' : 'fondo_femenino.png';
             document.getElementById('postalFrameOverlay').style.backgroundImage = `url('${marcoImg}')`;
             
-            // 3. Poner la foto del difunto por debajo
             let fotoUrl = (currentContact.Foto || currentContact.foto || "").trim();
             let finalImgUrl = fotoUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
             document.getElementById('postalImgBgUnder').style.backgroundImage = `url('${finalImgUrl}')`;
             
-            // 4. Asignar el texto
             document.getElementById('postalNameTitle').innerText = currentContact.Nombre;
             document.getElementById('modalHint').innerText = "He redactado este mensaje basándome en tu relación. Puedes editarlo antes de enviarlo.";
             let sugerencia = generarMensaje(currentContact);
